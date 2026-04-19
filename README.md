@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Tasks API
 
 A simple and modern **Task Management API** built with **ASP.NET Core Minimal API** and **MongoDB**.
