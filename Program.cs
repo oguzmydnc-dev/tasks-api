@@ -15,7 +15,7 @@ var mongoDbSettings = builder.Configuration
 
 if (mongoDbSettings is null)
 {
-    throw new Exception("MongoDbSettings bulunamadı.");
+    throw new Exception("MongoDbSettings not found.");
 }
 
 var taskService = new TaskService(mongoDbSettings);
@@ -47,7 +47,7 @@ app.MapPost("/tasks", async (TaskCrt request) =>
 {
     if (IsTaskNameInvalid(request.TaskName))
     {
-        return Results.BadRequest("Görev adı boş olamaz.");
+        return Results.BadRequest("Task name can't be empty.");
     }
 
     var newTask = new TaskObj
@@ -65,35 +65,35 @@ app.MapDelete("/tasks/{id}", async (string id) =>
 {
     if (IsMongoIdInvalid(id))
     {
-        return Results.BadRequest("Geçersiz görev id'si.");
+        return Results.BadRequest("Invalid task id.");
     }
 
     var deletedCount = await taskService.DeleteAsync(id);
 
     if (deletedCount == 0)
     {
-        return Results.NotFound("Görev bulunamadı.");
+        return Results.NotFound("Task not found.");
     }
 
-    return Results.Ok("Görev silindi.");
+    return Results.Ok("Task deleted.");
 });
 
 app.MapPut("/tasks/{id}", async (string id, TaskPut request) =>
 {
     if (IsMongoIdInvalid(id))
     {
-        return Results.BadRequest("Geçersiz görev id'si.");
+        return Results.BadRequest("Invalid task id.");
     }
     
     var task = await taskService.GetByIdAsync(id);
 
     if (task is null)
     {
-        return Results.NotFound("Görev bulunamadı.");
+        return Results.NotFound("Task not found.");
     }
     if (IsTaskNameInvalid(request.TaskName))
     {
-        return Results.BadRequest("Görev adı boş olamaz.");
+        return Results.BadRequest("Task name can't be empty.");
     }
 
     task.Name = request.TaskName;
@@ -123,14 +123,14 @@ app.MapGet("/tasks/{id}", async (string id) =>
 {
     if (IsMongoIdInvalid(id))
     {
-        return Results.BadRequest("Geçersiz görev id'si.");
+        return Results.BadRequest("Invalid task id.");
     }
 
     var task = await taskService.GetByIdAsync(id);
 
     if (task is null)
     {
-        return Results.NotFound("Görev bulunamadı.");
+        return Results.NotFound("Task not found.");
     }
 
     return Results.Ok(task);
@@ -142,8 +142,6 @@ app.MapGet("/tasks", async () =>
     var tasks = await taskService.GetAllAsync();
     return Results.Ok(tasks);
 });
-
-Console.WriteLine("- TasksApi 0.0.1 -");
 
 app.Run();
 
