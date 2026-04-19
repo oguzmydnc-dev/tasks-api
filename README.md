@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Tasks API
 
 A simple and modern **Task Management API** built with **ASP.NET Core Minimal API** and **MongoDB**.
@@ -176,3 +177,6 @@ unit and integration tests
 License
 
 This project was created for learning and practice purposes.
+=======
+# tasks-api
+>>>>>>> 950acded290c10f422094eff5f41e4c1f68ea15b
