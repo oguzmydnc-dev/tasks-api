@@ -9,6 +9,17 @@ builder.Services.AddOpenApi(options =>
     options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_0;
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("frontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 var mongoDbSettings = builder.Configuration
     .GetSection("MongoDbSettings")
     .Get<MongoDbSettings>();
@@ -21,6 +32,8 @@ if (mongoDbSettings is null)
 var taskService = new TaskService(mongoDbSettings);
 
 var app = builder.Build();
+
+app.UseCors("frontend");
 
 bool IsTaskNameInvalid(string taskName)
 {
