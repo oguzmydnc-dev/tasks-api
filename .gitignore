@@ -36,6 +36,11 @@ ScaffoldingReadMe.txt
 # NuGet Symbol Packages
 *.snupkg
 
+bin/
+obj/
+.vs/
+appsettings.Development.json
+
 # Others
 ~$*
 *~
