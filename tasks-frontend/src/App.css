@@ -80,6 +80,14 @@ body {
   padding: 16px 18px;
 }
 
+.stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
 .stat-card span {
   display: block;
   color: #a9c8b4;
@@ -181,6 +189,10 @@ body {
 /* Buttons */
 /* -------------------------------------------------- */
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   border: none;
   border-radius: 14px;
   padding: 11px 16px;
@@ -354,6 +366,7 @@ body {
 .status-badge {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
   border-radius: 999px;
   padding: 6px 10px;
   font-size: 0.82rem;
@@ -528,3 +541,4 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
