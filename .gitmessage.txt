@@ -1,0 +1,17 @@
+# type: short summary
+#
+# Allowed types:
+# feat      -> new feature
+# fix       -> bug fix
+# refactor  -> code cleanup without behavior change
+# style     -> UI / styling / layout
+# docs      -> documentation
+# chore     -> maintenance / config
+#
+# Examples:
+# feat: add register endpoint
+# fix: prevent empty task submission
+# refactor: extract task item component
+# style: improve responsive layout
+# docs: update README
+# chore: reorganize backend folder
