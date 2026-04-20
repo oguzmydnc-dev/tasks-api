@@ -14,6 +14,7 @@ function App() {
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
+  const [taskToDelete, setTaskToDelete] = useState(null);
   const completedCount = tasks.filter((task) => task.completed).length;
   const pendingCount = tasks.filter((task) => !task.completed).length;
 
@@ -87,6 +88,14 @@ function App() {
     }
   }
 
+  function openDeleteModal(task) {
+    setTaskToDelete(task);
+  }
+
+  function closeDeleteModal() {
+    setTaskToDelete(null);
+  }
+
   async function deleteTask(id) {
     try {
       const response = await fetch(`http://localhost:5218/tasks/${id}`, {
@@ -100,6 +109,29 @@ function App() {
 
       setError("");
       setSuccess("Task deleted successfully.");
+      await fetchTasks();
+    } catch (error) {
+      setError("Something went wrong while deleting.");
+      console.error(error);
+    }
+  }
+
+  async function confirmDeleteTask() {
+    if (!taskToDelete) return;
+
+    try {
+      const response = await fetch(`http://localhost:5218/tasks/${taskToDelete.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        setError("Task could not be deleted.");
+        return;
+      }
+
+      setError("");
+      setSuccess("Task deleted successfully.");
+      setTaskToDelete(null);
       await fetchTasks();
     } catch (error) {
       setError("Something went wrong while deleting.");
@@ -315,10 +347,7 @@ function App() {
                         >
                           {task.completed ? "Mark Pending" : "Mark Completed"}
                         </button>
-                        <button
-                          className="btn btn-danger"
-                          onClick={() => deleteTask(task.id)}
-                        >
+                        <button className="btn btn-danger" onClick={() => openDeleteModal(task)}>
                           Delete
                         </button>
                       </div>
@@ -330,6 +359,26 @@ function App() {
           )}
         </div>
       </div>
+      {taskToDelete && (
+        <div className="modal-overlay" onClick={closeDeleteModal}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <h3>Delete Task</h3>
+            <p>
+              Are you sure you want to delete{" "}
+              <strong>{taskToDelete.name}</strong>?
+            </p>
+
+            <div className="modal-actions">
+              <button className="btn btn-ghost" onClick={closeDeleteModal}>
+                Cancel
+              </button>
+              <button className="btn btn-danger" onClick={confirmDeleteTask}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
