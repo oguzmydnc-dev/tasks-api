@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - Frontend login and register pages with lightweight client-side routing
 - Minimal protected frontend routing for auth redirects and dashboard access control
 - Frontend `/auth/me` integration for restoring the authenticated user from a stored JWT
+- User-owned task access with JWT-protected task endpoints
 
 ### Changed
 - Added `UsersCollectionName` to backend MongoDB settings

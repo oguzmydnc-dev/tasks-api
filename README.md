@@ -33,6 +33,8 @@ The frontend provides a clean dashboard experience where users can create, updat
 - Register a new user
 - Log in with an existing user
 - Generate a JWT on successful login
+- Protect task endpoints with JWT authentication
+- Scope tasks to the authenticated user
 - Validate empty task names
 - Validate MongoDB ObjectId format
 - Validate register email format
@@ -141,6 +143,8 @@ tasks-api/
 ---
 
 ## Backend API Endpoints
+
+All task endpoints require a valid JWT and only return or modify tasks owned by the authenticated user.
 
 ### Get all tasks
 `GET /tasks`
@@ -331,6 +335,7 @@ VITE_API_BASE_URL=http://localhost:5218
 - The project uses local SVG icon components instead of third-party icon dependencies.
 - The current setup is split into separate `backend` and `tasks-frontend` folders for better maintainability.
 - The backend now includes initial auth foundation files with register, login, and JWT token generation.
+- The backend task endpoints now require JWT authentication and scope task access to the authenticated user.
 - The frontend now includes a lightweight auth provider that persists the JWT token in `localStorage` and exposes `login`, `register`, and `logout` helpers.
 - The frontend auth layer now restores the current user from `/auth/me` when a stored token exists and exposes that user in context.
 - The frontend now includes login and register pages with a small built-in router, without adding a routing package yet.

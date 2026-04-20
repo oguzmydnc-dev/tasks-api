@@ -93,6 +93,11 @@ bool IsPasswordInvalid(string? password)
     return string.IsNullOrWhiteSpace(password);
 }
 
+string? GetAuthenticatedUserId(ClaimsPrincipal user)
+{
+    return user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? user.FindFirst("sub")?.Value;
+}
+
 if (app.Environment.IsDevelopment())
 {
 
@@ -173,9 +178,7 @@ app.MapGet("/auth/test", () =>
 
 app.MapGet("/auth/me", (ClaimsPrincipal user) =>
 {
-    var userId =
-        user.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
-        user.FindFirst("sub")?.Value;
+    var userId = GetAuthenticatedUserId(user);
 
     var email =
         user.FindFirst(ClaimTypes.Email)?.Value ??
@@ -189,8 +192,15 @@ app.MapGet("/auth/me", (ClaimsPrincipal user) =>
 })
 .RequireAuthorization();
 
-app.MapPost("/tasks", async (TaskCrt request) =>
+app.MapPost("/tasks", async (TaskCrt request, ClaimsPrincipal user) =>
 {
+    var userId = GetAuthenticatedUserId(user);
+
+    if (string.IsNullOrWhiteSpace(userId))
+    {
+        return Results.Unauthorized();
+    }
+
     if (IsTaskNameInvalid(request.TaskName))
     {
         return Results.BadRequest("Task name can't be empty.");
@@ -198,6 +208,7 @@ app.MapPost("/tasks", async (TaskCrt request) =>
 
     var newTask = new TaskObj
     {
+        UserId = userId,
         Name = request.TaskName,
         Completed = false
     };
@@ -205,16 +216,24 @@ app.MapPost("/tasks", async (TaskCrt request) =>
     await taskService.CreateAsync(newTask);
 
     return Results.Created($"/tasks/{newTask.Id}", newTask);
-});
+})
+.RequireAuthorization();
 
-app.MapDelete("/tasks/{id}", async (string id) =>
+app.MapDelete("/tasks/{id}", async (string id, ClaimsPrincipal user) =>
 {
+    var userId = GetAuthenticatedUserId(user);
+
+    if (string.IsNullOrWhiteSpace(userId))
+    {
+        return Results.Unauthorized();
+    }
+
     if (IsMongoIdInvalid(id))
     {
         return Results.BadRequest("Invalid task id.");
     }
 
-    var deletedCount = await taskService.DeleteAsync(id);
+    var deletedCount = await taskService.DeleteAsync(id, userId);
 
     if (deletedCount == 0)
     {
@@ -222,16 +241,24 @@ app.MapDelete("/tasks/{id}", async (string id) =>
     }
 
     return Results.Ok("Task deleted.");
-});
+})
+.RequireAuthorization();
 
-app.MapPut("/tasks/{id}", async (string id, TaskPut request) =>
+app.MapPut("/tasks/{id}", async (string id, TaskPut request, ClaimsPrincipal user) =>
 {
+    var userId = GetAuthenticatedUserId(user);
+
+    if (string.IsNullOrWhiteSpace(userId))
+    {
+        return Results.Unauthorized();
+    }
+
     if (IsMongoIdInvalid(id))
     {
         return Results.BadRequest("Invalid task id.");
     }
     
-    var task = await taskService.GetByIdAsync(id);
+    var task = await taskService.GetByIdAsync(id, userId);
 
     if (task is null)
     {
@@ -245,34 +272,56 @@ app.MapPut("/tasks/{id}", async (string id, TaskPut request) =>
     task.Name = request.TaskName;
     task.Completed = request.Completed;
 
-    await taskService.UpdateAsync(id, task);
+    await taskService.UpdateAsync(id, userId, task);
 
     return Results.Ok(task);
 }
-);
+)
+.RequireAuthorization();
 
-app.MapGet("/tasks/completed", async () => {
+app.MapGet("/tasks/completed", async (ClaimsPrincipal user) => {
+    var userId = GetAuthenticatedUserId(user);
 
-    var completedTasks = await taskService.GetCompletedAsync();
+    if (string.IsNullOrWhiteSpace(userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var completedTasks = await taskService.GetCompletedAsync(userId);
 
     return Results.Ok(completedTasks);
-});
+})
+.RequireAuthorization();
 
-app.MapGet("/tasks/pending", async () => {
+app.MapGet("/tasks/pending", async (ClaimsPrincipal user) => {
+    var userId = GetAuthenticatedUserId(user);
+
+    if (string.IsNullOrWhiteSpace(userId))
+    {
+        return Results.Unauthorized();
+    }
     
-    var pendingTasks = await taskService.GetPendingAsync();
+    var pendingTasks = await taskService.GetPendingAsync(userId);
 
     return Results.Ok(pendingTasks);
-});
+})
+.RequireAuthorization();
 
-app.MapGet("/tasks/{id}", async (string id) =>
+app.MapGet("/tasks/{id}", async (string id, ClaimsPrincipal user) =>
 {
+    var userId = GetAuthenticatedUserId(user);
+
+    if (string.IsNullOrWhiteSpace(userId))
+    {
+        return Results.Unauthorized();
+    }
+
     if (IsMongoIdInvalid(id))
     {
         return Results.BadRequest("Invalid task id.");
     }
 
-    var task = await taskService.GetByIdAsync(id);
+    var task = await taskService.GetByIdAsync(id, userId);
 
     if (task is null)
     {
@@ -281,16 +330,24 @@ app.MapGet("/tasks/{id}", async (string id) =>
 
     return Results.Ok(task);
 }
-);
+)
+.RequireAuthorization();
 
-app.MapGet("/tasks", async () =>
+app.MapGet("/tasks", async (ClaimsPrincipal user) =>
 {
-    var tasks = await taskService.GetAllAsync();
+    var userId = GetAuthenticatedUserId(user);
+
+    if (string.IsNullOrWhiteSpace(userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var tasks = await taskService.GetAllAsync(userId);
     return Results.Ok(tasks);
-});
+})
+.RequireAuthorization();
 
 app.Run();
-
 
 
 
