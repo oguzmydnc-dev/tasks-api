@@ -1,6 +1,7 @@
 using MongoDB.Driver;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,7 @@ if (mongoDbSettings is null)
 }
 
 var taskService = new TaskService(mongoDbSettings);
+var authService = new AuthService(mongoDbSettings);
 
 var app = builder.Build();
 
@@ -45,6 +47,18 @@ bool IsMongoIdInvalid(string id)
     return !ObjectId.TryParse(id, out _);
 }
 
+var emailValidator = new EmailAddressAttribute();
+
+bool IsEmailInvalid(string? email)
+{
+    return string.IsNullOrWhiteSpace(email) || !emailValidator.IsValid(email);
+}
+
+bool IsPasswordInvalid(string? password)
+{
+    return string.IsNullOrWhiteSpace(password);
+}
+
 if (app.Environment.IsDevelopment())
 {
 
@@ -55,6 +69,33 @@ if (app.Environment.IsDevelopment())
         options.SwaggerEndpoint("/openapi/v1.json", "v1");
     });
 }
+
+app.MapPost("/auth/register", async (RegisterRequest request) =>
+{
+    if (IsEmailInvalid(request.Email))
+    {
+        return Results.BadRequest("A valid email is required.");
+    }
+
+    if (IsPasswordInvalid(request.Password))
+    {
+        return Results.BadRequest("Password can't be empty.");
+    }
+
+    var user = await authService.RegisterAsync(request.Email, request.Password);
+
+    if (user is null)
+    {
+        return Results.Conflict("A user with this email already exists.");
+    }
+
+    return Results.Created($"/auth/users/{user.Id}", new
+    {
+        user.Id,
+        user.Email,
+        user.CreatedAtUtc
+    });
+});
 
 app.MapPost("/tasks", async (TaskCrt request) =>
 {

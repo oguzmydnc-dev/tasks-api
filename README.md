@@ -30,8 +30,10 @@ The frontend provides a clean dashboard experience where users can create, updat
 - Delete a task
 - Get completed tasks
 - Get pending tasks
+- Register a new user
 - Validate empty task names
 - Validate MongoDB ObjectId format
+- Validate register email format
 - MongoDB Atlas integration
 - Swagger / OpenAPI support
 
@@ -135,6 +137,16 @@ tasks-api/
 }
 ```
 
+### Register a new user
+`POST /auth/register`
+
+```json
+{
+  "email": "user@example.com",
+  "password": "StrongPassword123"
+}
+```
+
 ### Update a task
 `PUT /tasks/{id}`
 
@@ -171,6 +183,8 @@ This project includes validation for:
 - empty task names
 - task names containing only whitespace
 - invalid MongoDB ObjectId values
+- empty passwords during registration
+- invalid email format during registration
 
 ---
 
@@ -204,7 +218,8 @@ Configure your MongoDB connection in `appsettings.Development.json`:
   "MongoDbSettings": {
     "ConnectionString": "YOUR_MONGODB_CONNECTION_STRING",
     "DatabaseName": "TaskDb",
-    "CollectionName": "Tasks"
+    "CollectionName": "Tasks",
+    "UsersCollectionName": "Users"
   }
 }
 ```
@@ -275,6 +290,7 @@ VITE_API_BASE_URL=http://localhost:5218
 - Task operations are handled through reusable React components.
 - The project uses local SVG icon components instead of third-party icon dependencies.
 - The current setup is split into separate `backend` and `tasks-frontend` folders for better maintainability.
+- The backend now includes initial auth foundation files for user registration and future login/JWT work.
 
 ---
 
