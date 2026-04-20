@@ -40,7 +40,7 @@ async function fetchTasksData(filter, setLoading, setTasks, setError) {
 }
 
 function App({ navigate = () => {} }) {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, currentUser, logout } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [taskName, setTaskName] = useState("");
   const [error, setError] = useState("");
@@ -172,7 +172,9 @@ function App({ navigate = () => {} }) {
         <div className="auth-actions">
           {isAuthenticated ? (
             <>
-              <span className="status-pill">Signed in</span>
+              <span className="status-pill">
+                {currentUser?.email || "Signed in"}
+              </span>
               <button className="btn btn-ghost" onClick={logout}>
                 Logout
               </button>

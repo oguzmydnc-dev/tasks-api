@@ -1,28 +1,84 @@
 import { useEffect, useState } from "react"
 import AuthContext from "./authContext"
-import { loginApi, registerApi } from "../services/authApi"
+import { getMeApi, loginApi, registerApi } from "../services/authApi"
+import {
+  clearStoredAuthToken,
+  getStoredAuthToken,
+  setStoredAuthToken,
+} from "../services/authToken"
 
-const AUTH_TOKEN_STORAGE_KEY = "tasks-dashboard-auth-token"
+function normalizeUser(user) {
+  if (!user) {
+    return null
+  }
 
-function getStoredToken() {
-  return localStorage.getItem(AUTH_TOKEN_STORAGE_KEY) || ""
+  return {
+    id: user.id,
+    email: user.email,
+    createdAtUtc: user.createdAtUtc || null,
+  }
 }
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => getStoredToken())
+  const [token, setToken] = useState(() => getStoredAuthToken())
+  const [currentUser, setCurrentUser] = useState(null)
+  const [isAuthLoading, setIsAuthLoading] = useState(() => Boolean(getStoredAuthToken()))
 
   useEffect(() => {
     if (token) {
-      localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, token)
+      setStoredAuthToken(token)
       return
     }
 
-    localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY)
+    clearStoredAuthToken()
+  }, [token])
+
+  useEffect(() => {
+    let isActive = true
+
+    async function loadCurrentUser() {
+      if (!token) {
+        setCurrentUser(null)
+        setIsAuthLoading(false)
+        return
+      }
+
+      setIsAuthLoading(true)
+
+      try {
+        const user = await getMeApi(token)
+
+        if (!isActive) {
+          return
+        }
+
+        setCurrentUser(normalizeUser(user))
+      } catch {
+        if (!isActive) {
+          return
+        }
+
+        clearStoredAuthToken()
+        setToken("")
+        setCurrentUser(null)
+      } finally {
+        if (isActive) {
+          setIsAuthLoading(false)
+        }
+      }
+    }
+
+    loadCurrentUser()
+
+    return () => {
+      isActive = false
+    }
   }, [token])
 
   async function login(credentials) {
     const response = await loginApi(credentials)
     setToken(response?.token || "")
+    setCurrentUser(normalizeUser(response?.user))
     return response
   }
 
@@ -32,6 +88,7 @@ export function AuthProvider({ children }) {
 
   function logout() {
     setToken("")
+    setCurrentUser(null)
   }
 
   return (
@@ -39,6 +96,8 @@ export function AuthProvider({ children }) {
       value={{
         token,
         isAuthenticated: Boolean(token),
+        currentUser,
+        isAuthLoading,
         login,
         register,
         logout,

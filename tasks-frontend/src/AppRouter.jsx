@@ -46,9 +46,9 @@ function getResolvedPath(path, isAuthenticated) {
 }
 
 function AppRouter() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, isAuthLoading } = useAuth()
   const [path, setPath] = useState(() => getCurrentPath())
-  const resolvedPath = getResolvedPath(path, isAuthenticated)
+  const resolvedPath = isAuthLoading ? path : getResolvedPath(path, isAuthenticated)
 
   useEffect(() => {
     function handlePopState() {
@@ -61,13 +61,21 @@ function AppRouter() {
   }, [])
 
   useEffect(() => {
-    if (resolvedPath !== path) {
+    if (!isAuthLoading && resolvedPath !== path) {
       navigateTo(resolvedPath, setPath)
     }
-  }, [path, resolvedPath])
+  }, [isAuthLoading, path, resolvedPath])
 
   function navigate(pathname) {
     navigateTo(pathname, setPath)
+  }
+
+  if (isAuthLoading) {
+    return (
+      <div className="app-shell">
+        <div className="loading-state">Loading session...</div>
+      </div>
+    )
   }
 
   if (resolvedPath === "/login") {

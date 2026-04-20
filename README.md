@@ -57,6 +57,7 @@ The frontend provides a clean dashboard experience where users can create, updat
 - Component-based UI structure
 - Auth API service foundation
 - JWT token persistence in localStorage
+- Authenticated user restore from `/auth/me`
 - Login and register screens
 - Lightweight client-side routing for auth pages
 - Dashboard redirect to login when unauthenticated
@@ -115,6 +116,7 @@ tasks-api/
 │   │   │   └── useAuth.js
 │   │   ├── services/
 │   │   │   ├── authApi.js
+│   │   │   ├── authToken.js
 │   │   │   └── taskApi.js
 │   │   ├── AppRouter.jsx
 │   │   ├── App.css
@@ -330,6 +332,7 @@ VITE_API_BASE_URL=http://localhost:5218
 - The current setup is split into separate `backend` and `tasks-frontend` folders for better maintainability.
 - The backend now includes initial auth foundation files with register, login, and JWT token generation.
 - The frontend now includes a lightweight auth provider that persists the JWT token in `localStorage` and exposes `login`, `register`, and `logout` helpers.
+- The frontend auth layer now restores the current user from `/auth/me` when a stored token exists and exposes that user in context.
 - The frontend now includes login and register pages with a small built-in router, without adding a routing package yet.
 - The frontend router now redirects unauthenticated users to `/login` and sends authenticated users away from `/login` and `/register` back to `/`.
 

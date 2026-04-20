@@ -1,3 +1,5 @@
+import { getAuthHeaders } from "./authToken";
+
 const rawApiBaseUrl =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5218";
 
@@ -30,16 +32,18 @@ async function handleResponse(response, errorMessage) {
 }
 
 export async function getTasksApi(filter = "all") {
-  const response = await fetch(getTasksUrl(filter));
+  const response = await fetch(getTasksUrl(filter), {
+    headers: getAuthHeaders(),
+  });
   return await handleResponse(response, "Tasks could not be fetched.");
 }
 
 export async function createTaskApi(taskName) {
   const response = await fetch(`${API_BASE_URL}/tasks`, {
     method: "POST",
-    headers: {
+    headers: getAuthHeaders({
       "Content-Type": "application/json",
-    },
+    }),
     body: JSON.stringify({
       taskName: taskName,
     }),
@@ -51,9 +55,9 @@ export async function createTaskApi(taskName) {
 export async function updateTaskApi(id, taskData) {
   const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
     method: "PUT",
-    headers: {
+    headers: getAuthHeaders({
       "Content-Type": "application/json",
-    },
+    }),
     body: JSON.stringify(taskData),
   });
 
@@ -65,6 +69,7 @@ export async function updateTaskApi(id, taskData) {
 export async function deleteTaskApi(id) {
   const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
     method: "DELETE",
+    headers: getAuthHeaders(),
   });
 
   if (!response.ok) {

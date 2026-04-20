@@ -1,3 +1,5 @@
+import { getAuthHeaders } from "./authToken"
+
 const rawApiBaseUrl =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5218"
 
@@ -57,4 +59,12 @@ export async function loginApi({ email, password }) {
   })
 
   return await handleResponse(response, "Login could not be completed.")
+}
+
+export async function getMeApi(token) {
+  const response = await fetch(`${API_BASE_URL}/auth/me`, {
+    headers: getAuthHeaders({}, token),
+  })
+
+  return await handleResponse(response, "Authenticated user could not be loaded.")
 }
