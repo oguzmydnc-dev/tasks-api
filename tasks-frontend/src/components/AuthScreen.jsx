@@ -16,6 +16,7 @@ function AuthScreen({
   alternateText,
   alternateActionLabel,
   onAlternateAction,
+  onTopbarAction,
   navigate,
 }) {
   const { isAuthenticated } = useAuth()
@@ -44,7 +45,14 @@ function AuthScreen({
 
         <button
           className="btn btn-ghost"
-          onClick={() => navigate(topbarAction.path)}
+          onClick={() => {
+            if (onTopbarAction) {
+              onTopbarAction()
+              return
+            }
+
+            navigate(topbarAction.path)
+          }}
         >
           {topbarAction.label}
         </button>

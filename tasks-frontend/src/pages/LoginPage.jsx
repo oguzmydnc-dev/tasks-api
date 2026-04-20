@@ -9,6 +9,13 @@ function LoginPage({ navigate }) {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
+  function resetForm() {
+    setEmail("")
+    setPassword("")
+    setError("")
+    setLoading(false)
+  }
+
   async function handleSubmit(event) {
     event.preventDefault()
     setLoading(true)
@@ -39,7 +46,14 @@ function LoginPage({ navigate }) {
       onSubmit={handleSubmit}
       alternateText="Need an account?"
       alternateActionLabel="Create one"
-      onAlternateAction={() => navigate("/register")}
+      onAlternateAction={() => {
+        resetForm()
+        navigate("/register")
+      }}
+      onTopbarAction={() => {
+        resetForm()
+        navigate("/register")
+      }}
       navigate={navigate}
     />
   )

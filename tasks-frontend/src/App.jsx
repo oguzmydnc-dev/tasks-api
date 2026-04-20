@@ -25,13 +25,18 @@ function isEmptyOrSpaces(str) {
   return !str || str.trim() === "";
 }
 
-async function fetchTasksData(filter, setLoading, setTasks, setError) {
+async function fetchTasksData(filter, token, setLoading, setTasks, setError) {
   setLoading(true);
 
   try {
-    const data = await getTasksApi(filter);
+    const data = await getTasksApi(filter, token);
     setTasks(data);
+    setError("");
   } catch (error) {
+    if (error.status === 401) {
+      return;
+    }
+
     console.error(error);
     setError("Tasks could not be fetched.");
   } finally {
@@ -40,7 +45,7 @@ async function fetchTasksData(filter, setLoading, setTasks, setError) {
 }
 
 function App({ navigate = () => {} }) {
-  const { isAuthenticated, currentUser, logout } = useAuth();
+  const { token, isAuthenticated, isAuthLoading, currentUser, logout } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [taskName, setTaskName] = useState("");
   const [error, setError] = useState("");
@@ -52,8 +57,12 @@ function App({ navigate = () => {} }) {
   const [taskToDelete, setTaskToDelete] = useState(null);
 
   useEffect(() => {
-    fetchTasksData(filter, setLoading, setTasks, setError);
-  }, [filter]);
+    if (isAuthLoading || !isAuthenticated) {
+      return;
+    }
+
+    fetchTasksData(filter, token, setLoading, setTasks, setError);
+  }, [filter, isAuthLoading, isAuthenticated, token]);
 
   useEffect(() => {
     if (!success) return;
@@ -74,12 +83,12 @@ function App({ navigate = () => {} }) {
     }
 
     try {
-      await createTaskApi(taskName);
+      await createTaskApi(taskName, token);
 
       setError("");
       setTaskName("");
       setSuccess("Task created successfully.");
-      await fetchTasksData(filter, setLoading, setTasks, setError);
+      await fetchTasksData(filter, token, setLoading, setTasks, setError);
     } catch (error) {
       setError("Something went wrong.");
       console.error(error);
@@ -98,12 +107,12 @@ function App({ navigate = () => {} }) {
     if (!taskToDelete) return;
 
     try {
-      await deleteTaskApi(taskToDelete.id);
+      await deleteTaskApi(taskToDelete.id, token);
 
       setError("");
       setSuccess("Task deleted successfully.");
       setTaskToDelete(null);
-      await fetchTasksData(filter, setLoading, setTasks, setError);
+      await fetchTasksData(filter, token, setLoading, setTasks, setError);
     } catch (error) {
       setError("Something went wrong while deleting.");
       console.error(error);
@@ -115,11 +124,11 @@ function App({ navigate = () => {} }) {
       await updateTaskApi(task.id, {
         taskName: task.name,
         completed: !task.completed,
-      });
+      }, token);
 
       setError("");
       setSuccess("Task status updated.");
-      await fetchTasksData(filter, setLoading, setTasks, setError);
+      await fetchTasksData(filter, token, setLoading, setTasks, setError);
     } catch (error) {
       setError("Something went wrong while updating.");
       console.error(error);
@@ -147,13 +156,13 @@ function App({ navigate = () => {} }) {
       await updateTaskApi(task.id, {
         taskName: editTaskName,
         completed: task.completed,
-      });
+      }, token);
 
       setError("");
       setEditingTaskId(null);
       setEditTaskName("");
       setSuccess("Task updated successfully.");
-      await fetchTasksData(filter, setLoading, setTasks, setError);
+      await fetchTasksData(filter, token, setLoading, setTasks, setError);
     } catch (error) {
       setError("Something went wrong while updating.");
       console.error(error);

@@ -10,6 +10,14 @@ function RegisterPage({ navigate }) {
   const [success, setSuccess] = useState("")
   const [loading, setLoading] = useState(false)
 
+  function resetForm() {
+    setEmail("")
+    setPassword("")
+    setError("")
+    setSuccess("")
+    setLoading(false)
+  }
+
   async function handleSubmit(event) {
     event.preventDefault()
     setLoading(true)
@@ -44,7 +52,14 @@ function RegisterPage({ navigate }) {
       onSubmit={handleSubmit}
       alternateText="Already have an account?"
       alternateActionLabel="Log in"
-      onAlternateAction={() => navigate("/login")}
+      onAlternateAction={() => {
+        resetForm()
+        navigate("/login")
+      }}
+      onTopbarAction={() => {
+        resetForm()
+        navigate("/login")
+      }}
       navigate={navigate}
     />
   )

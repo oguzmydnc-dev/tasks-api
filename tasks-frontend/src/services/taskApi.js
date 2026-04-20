@@ -49,19 +49,19 @@ async function handleResponse(response, errorMessage) {
   return null;
 }
 
-export async function getTasksApi(filter = "all") {
+export async function getTasksApi(filter = "all", token) {
   const response = await fetch(getTasksUrl(filter), {
-    headers: getAuthHeaders(),
+    headers: getAuthHeaders({}, token),
   });
   return await handleResponse(response, "Tasks could not be fetched.");
 }
 
-export async function createTaskApi(taskName) {
+export async function createTaskApi(taskName, token) {
   const response = await fetch(`${API_BASE_URL}/tasks`, {
     method: "POST",
     headers: getAuthHeaders({
       "Content-Type": "application/json",
-    }),
+    }, token),
     body: JSON.stringify({
       taskName: taskName,
     }),
@@ -70,12 +70,12 @@ export async function createTaskApi(taskName) {
   return await handleResponse(response, "Task could not be created.");
 }
 
-export async function updateTaskApi(id, taskData) {
+export async function updateTaskApi(id, taskData, token) {
   const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
     method: "PUT",
     headers: getAuthHeaders({
       "Content-Type": "application/json",
-    }),
+    }, token),
     body: JSON.stringify(taskData),
   });
 
@@ -84,10 +84,10 @@ export async function updateTaskApi(id, taskData) {
 
 
 
-export async function deleteTaskApi(id) {
+export async function deleteTaskApi(id, token) {
   const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
     method: "DELETE",
-    headers: getAuthHeaders(),
+    headers: getAuthHeaders({}, token),
   });
 
   if (!response.ok) {
