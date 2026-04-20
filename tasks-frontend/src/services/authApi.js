@@ -3,9 +3,21 @@ const rawApiBaseUrl =
 
 const API_BASE_URL = rawApiBaseUrl.replace(/\/$/, "")
 
+async function getErrorMessage(response, fallbackMessage) {
+  const contentType = response.headers.get("content-type")
+
+  if (contentType && contentType.includes("application/json")) {
+    const data = await response.json()
+    return data?.message || fallbackMessage
+  }
+
+  const text = await response.text()
+  return text || fallbackMessage
+}
+
 async function handleResponse(response, errorMessage) {
   if (!response.ok) {
-    throw new Error(errorMessage)
+    throw new Error(await getErrorMessage(response, errorMessage))
   }
 
   const contentType = response.headers.get("content-type")

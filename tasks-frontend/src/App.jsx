@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import "./App.css";
 import {
   CheckCircle2,
   CircleDashed,
@@ -20,6 +19,7 @@ import StatsCards from "./components/StatsCards";
 import TaskForm from "./components/TaskForm";
 import TaskList from "./components/TaskList";
 import TaskItem from "./components/TaskItem";
+import { useAuth } from "./context/useAuth";
 
 function isEmptyOrSpaces(str) {
   return !str || str.trim() === "";
@@ -39,7 +39,8 @@ async function fetchTasksData(filter, setLoading, setTasks, setError) {
   }
 }
 
-function App() {
+function App({ navigate = () => {} }) {
+  const { isAuthenticated, logout } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [taskName, setTaskName] = useState("");
   const [error, setError] = useState("");
@@ -162,6 +163,35 @@ function App() {
   return (
     <div className="app-shell">
       {success && <div className="toast toast-success">{success}</div>}
+
+      <div className="page-topbar">
+        <button className="brand-button" onClick={() => navigate("/")}>
+          Tasks Dashboard
+        </button>
+
+        <div className="auth-actions">
+          {isAuthenticated ? (
+            <>
+              <span className="status-pill">Signed in</span>
+              <button className="btn btn-ghost" onClick={logout}>
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="btn btn-ghost" onClick={() => navigate("/login")}>
+                Login
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={() => navigate("/register")}
+              >
+                Register
+              </button>
+            </>
+          )}
+        </div>
+      </div>
 
       <div className="hero">
         <h1>Tasks Dashboard</h1>

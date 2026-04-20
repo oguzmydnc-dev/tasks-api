@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Initial `POST /auth/login` endpoint with normalized email lookup and password verification
 - JWT configuration model and backend JWT authentication setup
 - Frontend auth API service and auth state foundation with localStorage token persistence
+- Frontend login and register pages with lightweight client-side routing
 
 ### Changed
 - Added `UsersCollectionName` to backend MongoDB settings
