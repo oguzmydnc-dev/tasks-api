@@ -16,6 +16,10 @@ import {
   updateTaskApi,
   deleteTaskApi,
 } from "./services/taskApi";
+import StatsCards from "./components/StatsCards";
+import TaskForm from "./components/TaskForm";
+import TaskList from "./components/TaskList";
+import TaskItem from "./components/TaskItem";
 
 function isEmptyOrSpaces(str) {
   return !str || str.trim() === "";
@@ -170,55 +174,16 @@ function App() {
         </p>
       </div>
 
-      <div className="stats-row">
-        <div className="stat-card">
-          <div className="stat-top">
-            <span>All Tasks</span>
-            <ListTodo size={18} />
-          </div>
-          <strong>{tasks.length}</strong>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-top">
-            <span>Completed</span>
-            <CheckCircle2 size={18} />
-          </div>
-          <strong>{completedCount}</strong>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-top">
-            <span>Pending</span>
-            <CircleDashed size={18} />
-          </div>
-          <strong>{pendingCount}</strong>
-        </div>
-      </div>
+      <StatsCards tasks={tasks} />
 
       <div className="grid">
-        <div className="card">
-          <h2>Create Task</h2>
-
-          <form onSubmit={createTask} className="task-form">
-            <input
-              type="text"
-              placeholder="Enter a task..."
-              value={taskName}
-              className={error ? "input-error" : ""}
-              onChange={(e) => {
-                setTaskName(e.target.value);
-                setError("");
-              }}
-            />
-            <button type="submit" className="btn btn-primary">
-              <Plus size={16} />
-              Add Task
-            </button>
-          </form>
-
-          {error && <p className="error-message">{error}</p>}
-        </div>
+        <TaskForm
+          taskName={taskName}
+          setTaskName={setTaskName}
+          createTask={createTask}
+          error={error}
+          setError={setError}
+        />
 
         <div className="card">
           <div className="filter-row">
@@ -248,90 +213,18 @@ function App() {
             </div>
           </div>
 
-          {loading ? (
-            <div className="loading-state">Loading tasks...</div>
-          ) : tasks.length === 0 ? (
-            <div className="empty-state">No tasks found.</div>
-          ) : (
-            <ul className="task-list">
-              {tasks.map((task) => (
-                <li
-                  key={task.id}
-                  className={`task-item ${task.completed ? "completed" : "pending"}`}
-                >
-                  {editingTaskId === task.id ? (
-                    <>
-                      <div className="task-edit-area">
-                        <input
-                          type="text"
-                          value={editTaskName}
-                          onChange={(e) => setEditTaskName(e.target.value)}
-                        />
-                        <span className={`status-badge ${task.completed ? "done" : "todo"}`}>
-                          {task.completed ? (
-                            <CheckCircle2 size={14} />
-                          ) : (
-                            <CircleDashed size={14} />
-                          )}
-                          {task.completed ? "Completed" : "Pending"}
-                        </span>
-                      </div>
-
-                      <div className="task-actions">
-                        <button
-                          className="btn btn-primary"
-                          onClick={() => updateTaskName(task)}
-                        >
-                          <Save size={16} />
-                          Save
-                        </button>
-
-                        <button className="btn btn-ghost" onClick={cancelEdit}>
-                          <X size={16} />
-                          Cancel
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="task-main">
-                        <strong>{task.name}</strong>
-                        <span className={`status-badge ${task.completed ? "done" : "todo"}`}>
-                          {task.completed ? (
-                            <CheckCircle2 size={14} />
-                          ) : (
-                            <CircleDashed size={14} />
-                          )}
-                          {task.completed ? "Completed" : "Pending"}
-                        </span>
-                      </div>
-
-                      <div className="task-actions">
-                        <button className="btn btn-secondary" onClick={() => startEdit(task)}>
-                          <Pencil size={16} />
-                          Edit
-                        </button>
-
-                        <button className="btn btn-ghost" onClick={() => toggleTaskStatus(task)}>
-                          {task.completed ? (
-                            <CircleDashed size={16} />
-                          ) : (
-                            <CheckCircle2 size={16} />
-                          )}
-                          {task.completed ? "Mark Pending" : "Mark Completed"}
-                        </button>
-
-                        <button className="btn btn-danger" onClick={() => openDeleteModal(task)}>
-                          <Trash2 size={16} />
-                          Delete
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
+          <TaskList
+            tasks={tasks}
+            loading={loading}
+            editingTaskId={editingTaskId}
+            editTaskName={editTaskName}
+            setEditTaskName={setEditTaskName}
+            startEdit={startEdit}
+            cancelEdit={cancelEdit}
+            updateTaskName={updateTaskName}
+            toggleTaskStatus={toggleTaskStatus}
+            openDeleteModal={openDeleteModal}
+          />
         </div>
       </div>
 
