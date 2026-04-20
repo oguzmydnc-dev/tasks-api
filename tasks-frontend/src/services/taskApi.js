@@ -1,4 +1,7 @@
-const API_BASE_URL = "http://localhost:5218";
+const rawApiBaseUrl =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5218";
+
+const API_BASE_URL = rawApiBaseUrl.replace(/\/$/, "");
 
 function getTasksUrl(filter) {
   if (filter === "completed") {
@@ -56,6 +59,8 @@ export async function updateTaskApi(id, taskData) {
 
   return await handleResponse(response, "Task could not be updated.");
 }
+
+
 
 export async function deleteTaskApi(id) {
   const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
