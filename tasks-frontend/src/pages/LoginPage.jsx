@@ -1,19 +1,13 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import AuthScreen from "../components/AuthScreen"
 import { useAuth } from "../context/useAuth"
 
 function LoginPage({ navigate }) {
-  const { isAuthenticated, login } = useAuth()
+  const { login } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/")
-    }
-  }, [isAuthenticated, navigate])
 
   async function handleSubmit(event) {
     event.preventDefault()

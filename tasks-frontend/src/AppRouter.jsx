@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import App from "./App.jsx"
+import { useAuth } from "./context/useAuth"
 import LoginPage from "./pages/LoginPage.jsx"
 import RegisterPage from "./pages/RegisterPage.jsx"
 
@@ -32,8 +33,22 @@ function navigateTo(path, setPath) {
   setPath(nextPath)
 }
 
+function getResolvedPath(path, isAuthenticated) {
+  if (!isAuthenticated && path === "/") {
+    return "/login"
+  }
+
+  if (isAuthenticated && (path === "/login" || path === "/register")) {
+    return "/"
+  }
+
+  return path
+}
+
 function AppRouter() {
+  const { isAuthenticated } = useAuth()
   const [path, setPath] = useState(() => getCurrentPath())
+  const resolvedPath = getResolvedPath(path, isAuthenticated)
 
   useEffect(() => {
     function handlePopState() {
@@ -45,15 +60,21 @@ function AppRouter() {
     return () => window.removeEventListener("popstate", handlePopState)
   }, [])
 
+  useEffect(() => {
+    if (resolvedPath !== path) {
+      navigateTo(resolvedPath, setPath)
+    }
+  }, [path, resolvedPath])
+
   function navigate(pathname) {
     navigateTo(pathname, setPath)
   }
 
-  if (path === "/login") {
+  if (resolvedPath === "/login") {
     return <LoginPage navigate={navigate} />
   }
 
-  if (path === "/register") {
+  if (resolvedPath === "/register") {
     return <RegisterPage navigate={navigate} />
   }
 
