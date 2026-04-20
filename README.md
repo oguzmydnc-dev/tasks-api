@@ -114,70 +114,92 @@ tasks-api/
 ├── ListApi.sln
 ├── README.md
 └── .gitignore
-Backend API Endpoints
-Get all tasks
+```
 
-GET /tasks
+---
 
-Get a task by ID
+## Backend API Endpoints
 
-GET /tasks/{id}
+### Get all tasks
+`GET /tasks`
 
-Create a new task
+### Get a task by ID
+`GET /tasks/{id}`
 
-POST /tasks
+### Create a new task
+`POST /tasks`
 
+```json
 {
   "taskName": "Learn ASP.NET Core"
 }
-Update a task
+```
 
-PUT /tasks/{id}
+### Update a task
+`PUT /tasks/{id}`
 
+```json
 {
   "taskName": "Learn MongoDB",
   "completed": true
 }
-Delete a task
+```
 
-DELETE /tasks/{id}
+### Delete a task
+`DELETE /tasks/{id}`
 
-Get completed tasks
+### Get completed tasks
+`GET /tasks/completed`
 
-GET /tasks/completed
+### Get pending tasks
+`GET /tasks/pending`
 
-Get pending tasks
+---
 
-GET /tasks/pending
+## Response Codes
 
-Response Codes
-200 OK → successful request
-201 Created → resource created successfully
-400 Bad Request → invalid input
-404 Not Found → task not found
-Validation
+- `200 OK` → successful request
+- `201 Created` → resource created successfully
+- `400 Bad Request` → invalid input
+- `404 Not Found` → task not found
+
+---
+
+## Validation
 
 This project includes validation for:
+- empty task names
+- task names containing only whitespace
+- invalid MongoDB ObjectId values
 
-empty task names
-task names containing only whitespace
-invalid MongoDB ObjectId values
-Getting Started
-1. Clone the repository
+---
+
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
 git clone https://github.com/oguzmydnc-dev/tasks-api.git
 cd tasks-api
-2. Backend Setup
+```
+
+### 2. Backend Setup
 
 Go to the backend folder:
 
+```bash
 cd backend
+```
 
 Restore dependencies:
 
+```bash
 dotnet restore
+```
 
-Configure your MongoDB connection in appsettings.Development.json:
+Configure your MongoDB connection in `appsettings.Development.json`:
 
+```json
 {
   "MongoDbSettings": {
     "ConnectionString": "YOUR_MONGODB_CONNECTION_STRING",
@@ -185,78 +207,117 @@ Configure your MongoDB connection in appsettings.Development.json:
     "CollectionName": "Tasks"
   }
 }
+```
 
-Do not commit real MongoDB credentials to GitHub.
+> Do not commit real MongoDB credentials to GitHub.
 
 Run the backend:
 
+```bash
 dotnet watch run
+```
 
 or:
 
+```bash
 dotnet run
+```
 
 Swagger UI will be available at:
 
+```text
 http://localhost:5218/swagger
-3. Frontend Setup
+```
+
+### 3. Frontend Setup
 
 Open a new terminal and go to the frontend folder:
 
+```bash
 cd tasks-frontend
+```
 
 Install dependencies:
 
+```bash
 npm install
+```
 
 Create a local environment file:
 
-.env.local
+#### `.env.local`
+```env
 VITE_API_BASE_URL=http://localhost:5218
+```
 
 Run the frontend:
 
+```bash
 npm run dev
-Frontend Environment Variables
+```
+
+---
+
+## Frontend Environment Variables
 
 Example file:
 
-.env.example
+#### `.env.example`
+```env
 VITE_API_BASE_URL=http://localhost:5218
-Development Notes
-The frontend communicates with the backend through a dedicated API service module.
-Task operations are handled through reusable React components.
-The project uses local SVG icon components instead of third-party icon dependencies.
-The current setup is split into separate backend and tasks-frontend folders for better maintainability.
-Learning Goals
+```
+
+---
+
+## Development Notes
+
+- The frontend communicates with the backend through a dedicated API service module.
+- Task operations are handled through reusable React components.
+- The project uses local SVG icon components instead of third-party icon dependencies.
+- The current setup is split into separate `backend` and `tasks-frontend` folders for better maintainability.
+
+---
+
+## Learning Goals
 
 This project helped me practice:
 
-backend API development with ASP.NET Core Minimal API
-MongoDB integration
-CRUD operations
-validation and error handling
-async/await usage
-service layer separation
-frontend development with React + Vite
-component-based UI design
-API integration from frontend to backend
-responsive dashboard design
-Git branch workflow and milestone-based development
-Release Milestones
-v0.0.1 → Initial backend-only release
-v0.1.0 → Full frontend CRUD dashboard milestone
-Future Improvements
-authentication / authorization
-register / login flow
-JWT support
-protected pages
-role-based access
-admin panel
-user-specific task ownership
-Docker support
-tests
-deployment
-License
+- backend API development with ASP.NET Core Minimal API
+- MongoDB integration
+- CRUD operations
+- validation and error handling
+- async/await usage
+- service layer separation
+- frontend development with React + Vite
+- component-based UI design
+- API integration from frontend to backend
+- responsive dashboard design
+- Git branch workflow and milestone-based development
+
+---
+
+## Release Milestones
+
+- `v0.0.1` → Initial backend-only release
+- `v0.1.0` → Full frontend CRUD dashboard milestone
+
+---
+
+## Future Improvements
+
+- authentication / authorization
+- register / login flow
+- JWT support
+- protected pages
+- role-based access
+- admin panel
+- user-specific task ownership
+- Docker support
+- tests
+- deployment
+
+---
+
+## License
 
 This project was created for learning and portfolio purposes.
