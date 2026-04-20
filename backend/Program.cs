@@ -4,6 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -163,6 +164,30 @@ app.MapPost("/auth/login", async (LoginRequest request) =>
         }
     });
 });
+
+app.MapGet("/auth/test", () =>
+{
+    return Results.Ok("You are authenticated.");
+})
+.RequireAuthorization();
+
+app.MapGet("/auth/me", (ClaimsPrincipal user) =>
+{
+    var userId =
+        user.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+        user.FindFirst("sub")?.Value;
+
+    var email =
+        user.FindFirst(ClaimTypes.Email)?.Value ??
+        user.FindFirst("email")?.Value;
+
+    return Results.Ok(new
+    {
+        Id = userId,
+        Email = email
+    });
+})
+.RequireAuthorization();
 
 app.MapPost("/tasks", async (TaskCrt request) =>
 {
