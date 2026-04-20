@@ -164,7 +164,7 @@ task names containing only whitespace
 invalid MongoDB ObjectId values
 Getting Started
 1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/tasks-api.git
+git clone https://github.com/oguzmydnc-dev/tasks-api.git
 cd tasks-api
 2. Backend Setup
 
