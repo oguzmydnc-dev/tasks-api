@@ -32,6 +32,7 @@ The frontend provides a clean dashboard experience where users can create, updat
 - Get pending tasks
 - Register a new user
 - Log in with an existing user
+- Generate a JWT on successful login
 - Validate empty task names
 - Validate MongoDB ObjectId format
 - Validate register email format
@@ -159,7 +160,7 @@ tasks-api/
 }
 ```
 
-Returns `200 OK` for valid credentials and `401 Unauthorized` for invalid login attempts.
+Returns `200 OK` with a JWT token for valid credentials and `401 Unauthorized` for invalid login attempts.
 
 ### Update a task
 `PUT /tasks/{id}`
@@ -236,6 +237,12 @@ Configure your MongoDB connection in `appsettings.Development.json`:
     "DatabaseName": "TaskDb",
     "CollectionName": "Tasks",
     "UsersCollectionName": "Users"
+  },
+  "JwtSettings": {
+    "Issuer": "TasksDashboard",
+    "Audience": "TasksDashboardClient",
+    "Key": "CHANGE_THIS_TO_A_LONG_RANDOM_DEVELOPMENT_KEY",
+    "ExpirationMinutes": 60
   }
 }
 ```
@@ -306,7 +313,7 @@ VITE_API_BASE_URL=http://localhost:5218
 - Task operations are handled through reusable React components.
 - The project uses local SVG icon components instead of third-party icon dependencies.
 - The current setup is split into separate `backend` and `tasks-frontend` folders for better maintainability.
-- The backend now includes initial auth foundation files for register/login and future JWT work.
+- The backend now includes initial auth foundation files with register, login, and JWT token generation.
 
 ---
 
@@ -338,8 +345,6 @@ This project helped me practice:
 ## Future Improvements
 
 - authentication / authorization
-- register / login flow
-- JWT support
 - protected pages
 - role-based access
 - admin panel

@@ -1,16 +1,22 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 class AuthService
 {
     private readonly IMongoCollection<User> _usersCollection;
     private readonly PasswordHasher<User> _passwordHasher = new();
+    private readonly JwtSettings _jwtSettings;
 
-    public AuthService(MongoDbSettings settings)
+    public AuthService(MongoDbSettings settings, JwtSettings jwtSettings)
     {
         var mongoClient = new MongoClient(settings.ConnectionString);
         var mongoDatabase = mongoClient.GetDatabase(settings.DatabaseName);
         _usersCollection = mongoDatabase.GetCollection<User>(settings.UsersCollectionName);
+        _jwtSettings = jwtSettings;
     }
 
     public async Task<User?> RegisterAsync(string email, string password)
@@ -68,6 +74,30 @@ class AuthService
         }
 
         return user;
+    }
+
+    public string GenerateToken(User user)
+    {
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, user.Id ?? user.Email),
+            new(JwtRegisteredClaimNames.Email, user.Email),
+            new(ClaimTypes.NameIdentifier, user.Id ?? ""),
+            new(ClaimTypes.Email, user.Email)
+        };
+
+        var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
+        var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
+        var expiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes);
+
+        var token = new JwtSecurityToken(
+            issuer: _jwtSettings.Issuer,
+            audience: _jwtSettings.Audience,
+            claims: claims,
+            expires: expiresAt,
+            signingCredentials: credentials);
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
     private static string NormalizeEmail(string email)

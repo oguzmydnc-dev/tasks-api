@@ -10,9 +10,11 @@ All notable changes to this project will be documented in this file.
 - Backend auth foundation with `User`, `RegisterRequest`, `LoginRequest`, and `AuthService`
 - Initial `POST /auth/register` endpoint with email validation, duplicate email check, and password hashing
 - Initial `POST /auth/login` endpoint with normalized email lookup and password verification
+- JWT configuration model and backend JWT authentication setup
 
 ### Changed
 - Added `UsersCollectionName` to backend MongoDB settings
+- Login now returns a JWT token on successful authentication
 
 ---
 

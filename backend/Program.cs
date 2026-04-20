@@ -1,7 +1,10 @@
 using MongoDB.Driver;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,18 +27,48 @@ builder.Services.AddCors(options =>
 var mongoDbSettings = builder.Configuration
     .GetSection("MongoDbSettings")
     .Get<MongoDbSettings>();
+var jwtSettings = builder.Configuration
+    .GetSection("JwtSettings")
+    .Get<JwtSettings>();
 
 if (mongoDbSettings is null)
 {
     throw new Exception("MongoDbSettings not found.");
 }
+if (jwtSettings is null)
+{
+    throw new Exception("JwtSettings not found.");
+}
+if (string.IsNullOrWhiteSpace(jwtSettings.Key))
+{
+    throw new Exception("JwtSettings.Key not found.");
+}
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime = true,
+            ValidIssuer = jwtSettings.Issuer,
+            ValidAudience = jwtSettings.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+builder.Services.AddAuthorization();
 
 var taskService = new TaskService(mongoDbSettings);
-var authService = new AuthService(mongoDbSettings);
+var authService = new AuthService(mongoDbSettings, jwtSettings);
 
 var app = builder.Build();
 
 app.UseCors("frontend");
+app.UseAuthentication();
+app.UseAuthorization();
 
 bool IsTaskNameInvalid(string taskName)
 {
@@ -116,9 +149,12 @@ app.MapPost("/auth/login", async (LoginRequest request) =>
         return Results.Unauthorized();
     }
 
+    var token = authService.GenerateToken(user);
+
     return Results.Ok(new
     {
         Message = "Login successful.",
+        Token = token,
         User = new
         {
             user.Id,
