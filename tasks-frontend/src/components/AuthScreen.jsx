@@ -1,3 +1,5 @@
+import { useAuth } from "../context/useAuth"
+
 function AuthScreen({
   title,
   description,
@@ -16,6 +18,23 @@ function AuthScreen({
   onAlternateAction,
   navigate,
 }) {
+  const { isAuthenticated } = useAuth()
+
+  const topbarAction = isAuthenticated
+    ? {
+        label: "Back to Dashboard",
+        path: "/",
+      }
+    : alternateActionLabel === "Create one"
+      ? {
+          label: "Create account",
+          path: "/register",
+        }
+      : {
+          label: "Back to Login",
+          path: "/login",
+        }
+
   return (
     <div className="app-shell auth-shell">
       <div className="page-topbar">
@@ -23,8 +42,11 @@ function AuthScreen({
           Tasks Dashboard
         </button>
 
-        <button className="btn btn-ghost" onClick={() => navigate("/")}>
-          Back to Dashboard
+        <button
+          className="btn btn-ghost"
+          onClick={() => navigate(topbarAction.path)}
+        >
+          {topbarAction.label}
         </button>
       </div>
 

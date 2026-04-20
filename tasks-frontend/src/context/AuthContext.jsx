@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import AuthContext from "./authContext"
 import { getMeApi, loginApi, registerApi } from "../services/authApi"
 import {
+  AUTH_SESSION_CLEARED_EVENT,
+  clearAuthSession,
   clearStoredAuthToken,
   getStoredAuthToken,
   setStoredAuthToken,
@@ -23,6 +25,25 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => getStoredAuthToken())
   const [currentUser, setCurrentUser] = useState(null)
   const [isAuthLoading, setIsAuthLoading] = useState(() => Boolean(getStoredAuthToken()))
+
+  function clearAuthState() {
+    clearStoredAuthToken()
+    setToken("")
+    setCurrentUser(null)
+    setIsAuthLoading(false)
+  }
+
+  useEffect(() => {
+    function handleAuthSessionCleared() {
+      clearAuthState()
+    }
+
+    window.addEventListener(AUTH_SESSION_CLEARED_EVENT, handleAuthSessionCleared)
+
+    return () => {
+      window.removeEventListener(AUTH_SESSION_CLEARED_EVENT, handleAuthSessionCleared)
+    }
+  }, [])
 
   useEffect(() => {
     if (token) {
@@ -53,14 +74,15 @@ export function AuthProvider({ children }) {
         }
 
         setCurrentUser(normalizeUser(user))
-      } catch {
+      } catch (error) {
         if (!isActive) {
           return
         }
 
-        clearStoredAuthToken()
-        setToken("")
-        setCurrentUser(null)
+        if (error.status === 401) {
+          clearAuthState()
+          return
+        }
       } finally {
         if (isActive) {
           setIsAuthLoading(false)
@@ -79,6 +101,7 @@ export function AuthProvider({ children }) {
     const response = await loginApi(credentials)
     setToken(response?.token || "")
     setCurrentUser(normalizeUser(response?.user))
+    setIsAuthLoading(false)
     return response
   }
 
@@ -87,8 +110,7 @@ export function AuthProvider({ children }) {
   }
 
   function logout() {
-    setToken("")
-    setCurrentUser(null)
+    clearAuthSession("logout")
   }
 
   return (

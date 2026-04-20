@@ -17,9 +17,15 @@ async function getErrorMessage(response, fallbackMessage) {
   return text || fallbackMessage
 }
 
+async function createHttpError(response, fallbackMessage) {
+  const error = new Error(await getErrorMessage(response, fallbackMessage))
+  error.status = response.status
+  return error
+}
+
 async function handleResponse(response, errorMessage) {
   if (!response.ok) {
-    throw new Error(await getErrorMessage(response, errorMessage))
+    throw await createHttpError(response, errorMessage)
   }
 
   const contentType = response.headers.get("content-type")

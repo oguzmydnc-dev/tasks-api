@@ -1,4 +1,4 @@
-import { getAuthHeaders } from "./authToken";
+import { clearAuthSession, getAuthHeaders } from "./authToken";
 
 const rawApiBaseUrl =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5218";
@@ -17,9 +17,27 @@ function getTasksUrl(filter) {
   return `${API_BASE_URL}/tasks`;
 }
 
+async function getErrorMessage(response, fallbackMessage) {
+  const contentType = response.headers.get("content-type");
+
+  if (contentType && contentType.includes("application/json")) {
+    const data = await response.json();
+    return data?.message || fallbackMessage;
+  }
+
+  const text = await response.text();
+  return text || fallbackMessage;
+}
+
 async function handleResponse(response, errorMessage) {
   if (!response.ok) {
-    throw new Error(errorMessage);
+    if (response.status === 401) {
+      clearAuthSession("expired");
+    }
+
+    const error = new Error(await getErrorMessage(response, errorMessage));
+    error.status = response.status;
+    throw error;
   }
 
   const contentType = response.headers.get("content-type");
@@ -73,7 +91,13 @@ export async function deleteTaskApi(id) {
   });
 
   if (!response.ok) {
-    throw new Error("Task could not be deleted.");
+    if (response.status === 401) {
+      clearAuthSession("expired");
+    }
+
+    const error = new Error(await getErrorMessage(response, "Task could not be deleted."));
+    error.status = response.status;
+    throw error;
   }
 
   return true;
