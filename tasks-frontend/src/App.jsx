@@ -25,6 +25,20 @@ function isEmptyOrSpaces(str) {
   return !str || str.trim() === "";
 }
 
+async function fetchTasksData(filter, setLoading, setTasks, setError) {
+  setLoading(true);
+
+  try {
+    const data = await getTasksApi(filter);
+    setTasks(data);
+  } catch (error) {
+    console.error(error);
+    setError("Tasks could not be fetched.");
+  } finally {
+    setLoading(false);
+  }
+}
+
 function App() {
   const [tasks, setTasks] = useState([]);
   const [taskName, setTaskName] = useState("");
@@ -36,11 +50,8 @@ function App() {
   const [success, setSuccess] = useState("");
   const [taskToDelete, setTaskToDelete] = useState(null);
 
-  const completedCount = tasks.filter((task) => task.completed).length;
-  const pendingCount = tasks.filter((task) => !task.completed).length;
-
   useEffect(() => {
-    fetchTasks();
+    fetchTasksData(filter, setLoading, setTasks, setError);
   }, [filter]);
 
   useEffect(() => {
@@ -52,20 +63,6 @@ function App() {
 
     return () => clearTimeout(timer);
   }, [success]);
-
-  async function fetchTasks() {
-    setLoading(true);
-
-    try {
-      const data = await getTasksApi(filter);
-      setTasks(data);
-    } catch (error) {
-      console.error(error);
-      setError("Tasks could not be fetched.");
-    } finally {
-      setLoading(false);
-    }
-  }
 
   async function createTask(e) {
     e.preventDefault();
@@ -81,7 +78,7 @@ function App() {
       setError("");
       setTaskName("");
       setSuccess("Task created successfully.");
-      await fetchTasks();
+      await fetchTasksData(filter, setLoading, setTasks, setError);
     } catch (error) {
       setError("Something went wrong.");
       console.error(error);
@@ -105,7 +102,7 @@ function App() {
       setError("");
       setSuccess("Task deleted successfully.");
       setTaskToDelete(null);
-      await fetchTasks();
+      await fetchTasksData(filter, setLoading, setTasks, setError);
     } catch (error) {
       setError("Something went wrong while deleting.");
       console.error(error);
@@ -121,7 +118,7 @@ function App() {
 
       setError("");
       setSuccess("Task status updated.");
-      await fetchTasks();
+      await fetchTasksData(filter, setLoading, setTasks, setError);
     } catch (error) {
       setError("Something went wrong while updating.");
       console.error(error);
@@ -155,7 +152,7 @@ function App() {
       setEditingTaskId(null);
       setEditTaskName("");
       setSuccess("Task updated successfully.");
-      await fetchTasks();
+      await fetchTasksData(filter, setLoading, setTasks, setError);
     } catch (error) {
       setError("Something went wrong while updating.");
       console.error(error);

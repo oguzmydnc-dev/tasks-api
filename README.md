@@ -55,6 +55,8 @@ The frontend provides a clean dashboard experience where users can create, updat
 - Local SVG icon support
 - API service layer separation
 - Component-based UI structure
+- Auth API service foundation
+- JWT token persistence in localStorage
 
 ---
 
@@ -100,7 +102,12 @@ tasks-api/
 │   │   │   ├── TaskForm.jsx
 │   │   │   ├── TaskItem.jsx
 │   │   │   └── TaskList.jsx
+│   │   ├── context/
+│   │   │   ├── authContext.js
+│   │   │   ├── AuthContext.jsx
+│   │   │   └── useAuth.js
 │   │   ├── services/
+│   │   │   ├── authApi.js
 │   │   │   └── taskApi.js
 │   │   ├── App.css
 │   │   ├── App.jsx
@@ -314,6 +321,7 @@ VITE_API_BASE_URL=http://localhost:5218
 - The project uses local SVG icon components instead of third-party icon dependencies.
 - The current setup is split into separate `backend` and `tasks-frontend` folders for better maintainability.
 - The backend now includes initial auth foundation files with register, login, and JWT token generation.
+- The frontend now includes a lightweight auth provider that persists the JWT token in `localStorage` and exposes `login`, `register`, and `logout` helpers.
 
 ---
 
