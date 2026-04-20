@@ -45,6 +45,31 @@ class AuthService
             .FirstOrDefaultAsync();
     }
 
+    public async Task<User?> LoginAsync(string email, string password)
+    {
+        var user = await GetByEmailAsync(email);
+
+        if (user is null)
+        {
+            return null;
+        }
+
+        var verifyResult = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
+
+        if (verifyResult == PasswordVerificationResult.Failed)
+        {
+            return null;
+        }
+
+        if (verifyResult == PasswordVerificationResult.SuccessRehashNeeded)
+        {
+            user.PasswordHash = _passwordHasher.HashPassword(user, password);
+            await _usersCollection.ReplaceOneAsync(existingUser => existingUser.Id == user.Id, user);
+        }
+
+        return user;
+    }
+
     private static string NormalizeEmail(string email)
     {
         return email.Trim().ToLowerInvariant();

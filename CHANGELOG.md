@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Backend auth foundation with `User`, `RegisterRequest`, `LoginRequest`, and `AuthService`
 - Initial `POST /auth/register` endpoint with email validation, duplicate email check, and password hashing
+- Initial `POST /auth/login` endpoint with normalized email lookup and password verification
 
 ### Changed
 - Added `UsersCollectionName` to backend MongoDB settings

@@ -97,6 +97,37 @@ app.MapPost("/auth/register", async (RegisterRequest request) =>
     });
 });
 
+app.MapPost("/auth/login", async (LoginRequest request) =>
+{
+    if (IsEmailInvalid(request.Email))
+    {
+        return Results.BadRequest("A valid email is required.");
+    }
+
+    if (IsPasswordInvalid(request.Password))
+    {
+        return Results.BadRequest("Password can't be empty.");
+    }
+
+    var user = await authService.LoginAsync(request.Email, request.Password);
+
+    if (user is null)
+    {
+        return Results.Unauthorized();
+    }
+
+    return Results.Ok(new
+    {
+        Message = "Login successful.",
+        User = new
+        {
+            user.Id,
+            user.Email,
+            user.CreatedAtUtc
+        }
+    });
+});
+
 app.MapPost("/tasks", async (TaskCrt request) =>
 {
     if (IsTaskNameInvalid(request.TaskName))
