@@ -13,12 +13,23 @@ function App() {
   const [editTaskName, setEditTaskName] = useState("");
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
   const completedCount = tasks.filter((task) => task.completed).length;
   const pendingCount = tasks.filter((task) => !task.completed).length;
 
   useEffect(() => {
     fetchTasks();
   }, [filter]);
+
+  useEffect(() => {
+    if (!success) return;
+
+    const timer = setTimeout(() => {
+      setSuccess("");
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, [success]);
 
   async function fetchTasks() {
     setLoading(true);
@@ -68,7 +79,8 @@ function App() {
 
       setError("");
       setTaskName("");
-      fetchTasks();
+      setSuccess("Task created successfully.");
+      await fetchTasks();
     } catch (error) {
       setError("Something went wrong.");
       console.error(error);
@@ -87,7 +99,8 @@ function App() {
       }
 
       setError("");
-      fetchTasks();
+      setSuccess("Task deleted successfully.");
+      await fetchTasks();
     } catch (error) {
       setError("Something went wrong while deleting.");
       console.error(error);
@@ -113,7 +126,8 @@ function App() {
       }
 
       setError("");
-      fetchTasks();
+      setSuccess("Task status updated.");
+      await fetchTasks();
     } catch (error) {
       setError("Something went wrong while updating.");
       console.error(error);
@@ -157,7 +171,8 @@ function App() {
       setError("");
       setEditingTaskId(null);
       setEditTaskName("");
-      fetchTasks();
+      setSuccess("Task updated successfully.");
+      await fetchTasks();
     } catch (error) {
       setError("Something went wrong while updating.");
       console.error(error);
@@ -166,6 +181,7 @@ function App() {
 
   return (
     <div className="app-shell">
+      {success && <div className="toast toast-success">{success}</div>}
       <div className="hero">
         <h1>Tasks Dashboard</h1>
         <p>

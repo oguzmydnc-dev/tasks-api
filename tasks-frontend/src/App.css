@@ -119,6 +119,38 @@ body {
   transition: 0.2s ease;
 }
 
+.toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 1000;
+  min-width: 260px;
+  max-width: 360px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  font-weight: 600;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
+  animation: toast-slide-in 0.25s ease;
+}
+
+.toast-success {
+  background: rgba(22, 219, 101, 0.12);
+  border: 1px solid rgba(22, 219, 101, 0.26);
+  color: #d7ffe7;
+  backdrop-filter: blur(8px);
+}
+
+@keyframes toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(0);
+  }
+}
+
 .btn-primary {
   background: #16db65;
   color: #021208;
