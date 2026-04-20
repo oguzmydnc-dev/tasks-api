@@ -129,6 +129,15 @@ body {
   transform: translateY(-1px);
 }
 
+.loading-state {
+  padding: 24px 16px;
+  border-radius: 18px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.03);
+  color: #c7e7d1;
+  border: 1px dashed rgba(22, 219, 101, 0.16);
+}
+
 .btn-secondary,
 .btn-ghost,
 .btn-danger {

@@ -12,6 +12,7 @@ function App() {
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [editTaskName, setEditTaskName] = useState("");
   const [filter, setFilter] = useState("all");
+  const [loading, setLoading] = useState(false);
   const completedCount = tasks.filter((task) => task.completed).length;
   const pendingCount = tasks.filter((task) => !task.completed).length;
 
@@ -20,6 +21,8 @@ function App() {
   }, [filter]);
 
   async function fetchTasks() {
+    setLoading(true);
+
     let url = "http://localhost:5218/tasks";
 
     if (filter === "completed") {
@@ -34,6 +37,8 @@ function App() {
       setTasks(data);
     } catch (error) {
       console.error("Tasks could not be fetched:", error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -232,8 +237,9 @@ function App() {
               </button>
             </div>
           </div>
-
-          {tasks.length === 0 ? (
+          {loading ? (
+            <div className="loading-state">Loading tasks...</div>
+          ) : tasks.length === 0 ? (
             <div className="empty-state">No tasks found.</div>
           ) : (
             <ul className="task-list">
