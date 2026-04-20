@@ -10,6 +10,12 @@ import {
   Save,
   X,
 } from "./icons";
+import {
+  getTasksApi,
+  createTaskApi,
+  updateTaskApi,
+  deleteTaskApi,
+} from "./services/taskApi";
 
 function isEmptyOrSpaces(str) {
   return !str || str.trim() === "";
@@ -46,25 +52,11 @@ function App() {
   async function fetchTasks() {
     setLoading(true);
 
-    let url = "http://localhost:5218/tasks";
-
-    if (filter === "completed") {
-      url = "http://localhost:5218/tasks/completed";
-    } else if (filter === "pending") {
-      url = "http://localhost:5218/tasks/pending";
-    }
-
     try {
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error("Tasks could not be fetched.");
-      }
-
-      const data = await response.json();
+      const data = await getTasksApi(filter);
       setTasks(data);
     } catch (error) {
-      console.error("Tasks could not be fetched:", error);
+      console.error(error);
       setError("Tasks could not be fetched.");
     } finally {
       setLoading(false);
@@ -80,20 +72,7 @@ function App() {
     }
 
     try {
-      const response = await fetch("http://localhost:5218/tasks", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          taskName: taskName,
-        }),
-      });
-
-      if (!response.ok) {
-        setError("Task could not be created.");
-        return;
-      }
+      await createTaskApi(taskName);
 
       setError("");
       setTaskName("");
@@ -117,14 +96,7 @@ function App() {
     if (!taskToDelete) return;
 
     try {
-      const response = await fetch(`http://localhost:5218/tasks/${taskToDelete.id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        setError("Task could not be deleted.");
-        return;
-      }
+      await deleteTaskApi(taskToDelete.id);
 
       setError("");
       setSuccess("Task deleted successfully.");
@@ -138,21 +110,10 @@ function App() {
 
   async function toggleTaskStatus(task) {
     try {
-      const response = await fetch(`http://localhost:5218/tasks/${task.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          taskName: task.name,
-          completed: !task.completed,
-        }),
+      await updateTaskApi(task.id, {
+        taskName: task.name,
+        completed: !task.completed,
       });
-
-      if (!response.ok) {
-        setError("Task could not be updated.");
-        return;
-      }
 
       setError("");
       setSuccess("Task status updated.");
@@ -181,21 +142,10 @@ function App() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5218/tasks/${task.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          taskName: editTaskName,
-          completed: task.completed,
-        }),
+      await updateTaskApi(task.id, {
+        taskName: editTaskName,
+        completed: task.completed,
       });
-
-      if (!response.ok) {
-        setError("Task could not be updated.");
-        return;
-      }
 
       setError("");
       setEditingTaskId(null);
