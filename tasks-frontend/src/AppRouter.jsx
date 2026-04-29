@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import App from "./App.jsx"
 import { useAuth } from "./context/useAuth"
+import AdminPage from "./pages/AdminPage.jsx"
 import LoginPage from "./pages/LoginPage.jsx"
 import RegisterPage from "./pages/RegisterPage.jsx"
 
@@ -9,6 +10,7 @@ function normalizePath(pathname) {
 
   if (
     normalizedPath === "/" ||
+    normalizedPath === "/admin" ||
     normalizedPath === "/login" ||
     normalizedPath === "/register"
   ) {
@@ -33,8 +35,8 @@ function navigateTo(path, setPath) {
   setPath(nextPath)
 }
 
-function getResolvedPath(path, isAuthenticated) {
-  if (!isAuthenticated && path === "/") {
+function getResolvedPath(path, isAuthenticated, isAdmin) {
+  if (!isAuthenticated && (path === "/" || path === "/admin")) {
     return "/login"
   }
 
@@ -42,13 +44,19 @@ function getResolvedPath(path, isAuthenticated) {
     return "/"
   }
 
+  if (path === "/admin" && !isAdmin) {
+    return "/"
+  }
+
   return path
 }
 
 function AppRouter() {
-  const { isAuthenticated, isAuthLoading } = useAuth()
+  const { isAuthenticated, isAdmin, isAuthLoading } = useAuth()
   const [path, setPath] = useState(() => getCurrentPath())
-  const resolvedPath = isAuthLoading ? path : getResolvedPath(path, isAuthenticated)
+  const resolvedPath = isAuthLoading
+    ? path
+    : getResolvedPath(path, isAuthenticated, isAdmin)
 
   useEffect(() => {
     function handlePopState() {
@@ -84,6 +92,10 @@ function AppRouter() {
 
   if (resolvedPath === "/register") {
     return <RegisterPage navigate={navigate} />
+  }
+
+  if (resolvedPath === "/admin") {
+    return <AdminPage navigate={navigate} />
   }
 
   return <App navigate={navigate} />
