@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
 - Backend role foundation with default user role and admin-only auth test endpoint
 - Frontend role-aware auth context with authenticated user role and `isAdmin` helper
 - Frontend admin-only placeholder route with auth-context role gating
+- Admin-only user listing endpoint and frontend admin user list
 
 ### Changed
 - Added `UsersCollectionName` to backend MongoDB settings

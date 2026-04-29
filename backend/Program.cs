@@ -200,6 +200,20 @@ app.MapGet("/auth/me", (ClaimsPrincipal user) =>
 })
 .RequireAuthorization();
 
+app.MapGet("/auth/users", async () =>
+{
+    var users = await authService.GetAllAsync();
+
+    return Results.Ok(users.Select(user => new
+    {
+        user.Id,
+        user.Email,
+        user.Role,
+        user.CreatedAtUtc
+    }));
+})
+.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
+
 app.MapGet("/auth/admin-test", () =>
 {
     return Results.Ok("You are an admin.");

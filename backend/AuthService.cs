@@ -78,6 +78,14 @@ class AuthService
         return user;
     }
 
+    public async Task<List<User>> GetAllAsync()
+    {
+        return await _usersCollection
+            .Find(_ => true)
+            .SortBy(user => user.Email)
+            .ToListAsync();
+    }
+
     public string GenerateToken(User user)
     {
         var userRole = string.IsNullOrWhiteSpace(user.Role) ? DefaultUserRole : user.Role;

@@ -1,4 +1,4 @@
-import { getAuthHeaders } from "./authToken"
+import { clearAuthSession, getAuthHeaders } from "./authToken"
 
 const rawApiBaseUrl =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5218"
@@ -23,8 +23,16 @@ async function createHttpError(response, fallbackMessage) {
   return error
 }
 
-async function handleResponse(response, errorMessage) {
+async function handleResponse(
+  response,
+  errorMessage,
+  { clearOnUnauthorized = false } = {},
+) {
   if (!response.ok) {
+    if (clearOnUnauthorized && response.status === 401) {
+      clearAuthSession("expired")
+    }
+
     throw await createHttpError(response, errorMessage)
   }
 
@@ -73,4 +81,14 @@ export async function getMeApi(token) {
   })
 
   return await handleResponse(response, "Authenticated user could not be loaded.")
+}
+
+export async function getUsersApi(token) {
+  const response = await fetch(`${API_BASE_URL}/auth/users`, {
+    headers: getAuthHeaders({}, token),
+  })
+
+  return await handleResponse(response, "Users could not be loaded.", {
+    clearOnUnauthorized: true,
+  })
 }

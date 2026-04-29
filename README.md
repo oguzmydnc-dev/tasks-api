@@ -35,6 +35,7 @@ The frontend provides a clean dashboard experience where users can create, updat
 - Generate a JWT on successful login
 - Default new users to the `User` role
 - Include the user role in JWT claims
+- List all users through an admin-only endpoint with safe fields
 - Protect task endpoints with JWT authentication
 - Scope tasks to the authenticated user
 - Validate empty task names
@@ -68,6 +69,7 @@ The frontend provides a clean dashboard experience where users can create, updat
 - Dashboard redirect to login when unauthenticated
 - Auth context access to the current user role with a simple `isAdmin` helper
 - Minimal admin-only frontend route and placeholder page
+- Admin page user list for authenticated admins
 
 ---
 
@@ -192,6 +194,11 @@ Returns `200 OK` with a JWT token for valid credentials and `401 Unauthorized` f
 `GET /auth/admin-test`
 
 Requires a valid JWT with the `Admin` role.
+
+### List all users
+`GET /auth/users`
+
+Requires a valid JWT with the `Admin` role and returns safe user fields only.
 
 ### Update a task
 `PUT /tasks/{id}`
@@ -346,11 +353,13 @@ VITE_API_BASE_URL=http://localhost:5218
 - The current setup is split into separate `backend` and `tasks-frontend` folders for better maintainability.
 - The backend now includes initial auth foundation files with register, login, and JWT token generation.
 - The backend now includes a minimal role foundation with default `User` role assignment and an admin-only auth test endpoint.
+- The backend now includes an admin-only `/auth/users` endpoint that returns safe user summaries without password hashes.
 - The backend task endpoints now require JWT authentication and scope task access to the authenticated user.
 - The frontend now includes a lightweight auth provider that persists the JWT token in `localStorage` and exposes `login`, `register`, and `logout` helpers.
 - The frontend auth layer now restores the current user from `/auth/me` when a stored token exists and exposes that user in context.
 - The frontend auth context now keeps the authenticated user's role aligned with auth responses and exposes a simple `isAdmin` helper.
 - The frontend now includes a minimal `/admin` route that only resolves for authenticated admins and can be reached from the dashboard topbar for admin users.
+- The frontend admin page now loads and displays the backend user list for authenticated admins.
 - The frontend now clears auth state on logout and invalid protected-request tokens without destabilizing session restore on refresh.
 - The frontend now includes login and register pages with a small built-in router, without adding a routing package yet.
 - The frontend router now redirects unauthenticated users to `/login` and sends authenticated users away from `/login` and `/register` back to `/`.
