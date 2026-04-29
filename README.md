@@ -33,6 +33,8 @@ The frontend provides a clean dashboard experience where users can create, updat
 - Register a new user
 - Log in with an existing user
 - Generate a JWT on successful login
+- Default new users to the `User` role
+- Include the user role in JWT claims
 - Protect task endpoints with JWT authentication
 - Scope tasks to the authenticated user
 - Validate empty task names
@@ -183,6 +185,11 @@ All task endpoints require a valid JWT and only return or modify tasks owned by 
 ```
 
 Returns `200 OK` with a JWT token for valid credentials and `401 Unauthorized` for invalid login attempts.
+
+### Admin auth test
+`GET /auth/admin-test`
+
+Requires a valid JWT with the `Admin` role.
 
 ### Update a task
 `PUT /tasks/{id}`
@@ -336,6 +343,7 @@ VITE_API_BASE_URL=http://localhost:5218
 - The project uses local SVG icon components instead of third-party icon dependencies.
 - The current setup is split into separate `backend` and `tasks-frontend` folders for better maintainability.
 - The backend now includes initial auth foundation files with register, login, and JWT token generation.
+- The backend now includes a minimal role foundation with default `User` role assignment and an admin-only auth test endpoint.
 - The backend task endpoints now require JWT authentication and scope task access to the authenticated user.
 - The frontend now includes a lightweight auth provider that persists the JWT token in `localStorage` and exposes `login`, `register`, and `logout` helpers.
 - The frontend auth layer now restores the current user from `/auth/me` when a stored token exists and exposes that user in context.

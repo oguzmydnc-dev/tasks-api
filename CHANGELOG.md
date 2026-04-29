@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 - Frontend `/auth/me` integration for restoring the authenticated user from a stored JWT
 - User-owned task access with JWT-protected task endpoints
 - Frontend auth/session cleanup for logout, expired tokens, and stable session restore
+- Backend role foundation with default user role and admin-only auth test endpoint
 
 ### Changed
 - Added `UsersCollectionName` to backend MongoDB settings

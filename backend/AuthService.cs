@@ -7,6 +7,7 @@ using System.Text;
 
 class AuthService
 {
+    private const string DefaultUserRole = "User";
     private readonly IMongoCollection<User> _usersCollection;
     private readonly PasswordHasher<User> _passwordHasher = new();
     private readonly JwtSettings _jwtSettings;
@@ -32,6 +33,7 @@ class AuthService
         var user = new User
         {
             Email = normalizedEmail,
+            Role = DefaultUserRole,
             CreatedAtUtc = DateTime.UtcNow
         };
 
@@ -78,12 +80,15 @@ class AuthService
 
     public string GenerateToken(User user)
     {
+        var userRole = string.IsNullOrWhiteSpace(user.Role) ? DefaultUserRole : user.Role;
+
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Id ?? user.Email),
             new(JwtRegisteredClaimNames.Email, user.Email),
             new(ClaimTypes.NameIdentifier, user.Id ?? ""),
-            new(ClaimTypes.Email, user.Email)
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Role, userRole)
         };
 
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));

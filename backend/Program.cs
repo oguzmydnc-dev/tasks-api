@@ -2,6 +2,7 @@ using MongoDB.Driver;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
@@ -132,6 +133,7 @@ app.MapPost("/auth/register", async (RegisterRequest request) =>
     {
         user.Id,
         user.Email,
+        user.Role,
         user.CreatedAtUtc
     });
 });
@@ -165,6 +167,7 @@ app.MapPost("/auth/login", async (LoginRequest request) =>
         {
             user.Id,
             user.Email,
+            user.Role,
             user.CreatedAtUtc
         }
     });
@@ -184,13 +187,24 @@ app.MapGet("/auth/me", (ClaimsPrincipal user) =>
         user.FindFirst(ClaimTypes.Email)?.Value ??
         user.FindFirst("email")?.Value;
 
+    var role =
+        user.FindFirst(ClaimTypes.Role)?.Value ??
+        user.FindFirst("role")?.Value;
+
     return Results.Ok(new
     {
         Id = userId,
-        Email = email
+        Email = email,
+        Role = role
     });
 })
 .RequireAuthorization();
+
+app.MapGet("/auth/admin-test", () =>
+{
+    return Results.Ok("You are an admin.");
+})
+.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
 
 app.MapPost("/tasks", async (TaskCrt request, ClaimsPrincipal user) =>
 {
