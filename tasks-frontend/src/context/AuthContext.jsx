@@ -15,9 +15,10 @@ function normalizeUser(user) {
   }
 
   return {
-    id: user.id,
-    email: user.email,
-    createdAtUtc: user.createdAtUtc || null,
+    id: user.id ?? user.Id ?? null,
+    email: user.email ?? user.Email ?? "",
+    role: user.role ?? user.Role ?? "",
+    createdAtUtc: user.createdAtUtc ?? user.CreatedAtUtc ?? null,
   }
 }
 
@@ -119,6 +120,7 @@ export function AuthProvider({ children }) {
         token,
         isAuthenticated: Boolean(token),
         currentUser,
+        isAdmin: currentUser?.role === "Admin",
         isAuthLoading,
         login,
         register,

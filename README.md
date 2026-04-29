@@ -66,6 +66,7 @@ The frontend provides a clean dashboard experience where users can create, updat
 - Login and register screens
 - Lightweight client-side routing for auth pages
 - Dashboard redirect to login when unauthenticated
+- Auth context access to the current user role with a simple `isAdmin` helper
 
 ---
 
@@ -347,6 +348,7 @@ VITE_API_BASE_URL=http://localhost:5218
 - The backend task endpoints now require JWT authentication and scope task access to the authenticated user.
 - The frontend now includes a lightweight auth provider that persists the JWT token in `localStorage` and exposes `login`, `register`, and `logout` helpers.
 - The frontend auth layer now restores the current user from `/auth/me` when a stored token exists and exposes that user in context.
+- The frontend auth context now keeps the authenticated user's role aligned with auth responses and exposes a simple `isAdmin` helper.
 - The frontend now clears auth state on logout and invalid protected-request tokens without destabilizing session restore on refresh.
 - The frontend now includes login and register pages with a small built-in router, without adding a routing package yet.
 - The frontend router now redirects unauthenticated users to `/login` and sends authenticated users away from `/login` and `/register` back to `/`.

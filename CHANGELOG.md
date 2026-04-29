@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
 - User-owned task access with JWT-protected task endpoints
 - Frontend auth/session cleanup for logout, expired tokens, and stable session restore
 - Backend role foundation with default user role and admin-only auth test endpoint
+- Frontend role-aware auth context with authenticated user role and `isAdmin` helper
 
 ### Changed
 - Added `UsersCollectionName` to backend MongoDB settings
